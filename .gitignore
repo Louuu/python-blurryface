@@ -1,3 +1,4 @@
 processed/
 tmp/
 __pycache__
+config.yaml

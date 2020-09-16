@@ -2,12 +2,14 @@ import os
 import sys
 import yaml
 import uuid
+import requests
 
 from flask import Flask, flash, request, redirect, render_template
-
-from PIL import Image
+from PIL import Image, ImageFilter
 from werkzeug.utils import secure_filename
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
+from azure.cognitiveservices.vision.face import FaceClient
+from msrest.authentication import CognitiveServicesCredentials
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -75,6 +77,7 @@ def process_image(imageName):
             output = "Error: Position {0} is not valid".format(logoPosition)
 
         image.save(outputPath + imageName)
+        detect_faces(outputPath + imageName, imageName)
         upload_to_azure(outputPath + imageName, imageName)
         
         output = "Image {0} has been processed successfully".format(imagePath)
@@ -95,5 +98,31 @@ def upload_to_azure(filepath, filename):
     with open(filepath, "rb") as data:
         blob_client.upload_blob(data)
         blob_client.set_blob_metadata(metadata={"Application":"Image Uploader"})
+
+def detect_faces(filepath, filename):
+    ENDPOINT = config['azure']['face_detection_endpoint']
+    KEY = config['azure']['face_detection_key']
+    face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))
+
+    with open(filepath, "rb") as data:
+        detected_faces = face_client.face.detect_with_stream(data)
+        if not detected_faces:
+            raise Exception('No face detected from image {}'.format(filename))
+
+        img = Image.open(filepath)
+
+        for face in detected_faces:
+            left = face.face_rectangle.left
+            upper = face.face_rectangle.top
+            right = left + face.face_rectangle.width
+            lower = upper + face.face_rectangle.height
+
+            cropped_face = img.crop((left, upper, right, lower))
+            
+            blurred_face = cropped_face.filter(ImageFilter.BoxBlur(radius=50))
+            img.paste(blurred_face, ((left, upper, right, lower)))
+            print("Faces blurred")
+        img.save(filepath)
+    return "Done"
     
 config = load_config()

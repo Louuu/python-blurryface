@@ -2,3 +2,4 @@ pillow
 flask
 pyyaml
 azure-storage-blob
+azure.cognitiveservices.vision.face

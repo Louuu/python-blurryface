@@ -1,0 +1,17 @@
+settings:
+  path_logo: "./logo.png"
+  path_processed: "./processed/"
+  path_uploads: "./tmp/"
+  allowed_extensions: 
+    - jpeg
+    - png
+    - jpg
+  logo_position: "bottom_left"
+  cloud_storage: "azure"
+
+azure:
+  enabled: true
+  storage_connection_string: ""
+  storage_container_name: ""
+  face_detection_endpoint: ""
+  face_detection_key: ""
