@@ -1,3 +1,4 @@
 pillow
 flask
 pyyaml
+azure-storage-blob

@@ -1,10 +1,13 @@
 import os
 import sys
 import yaml
+import uuid
 
-from flask import Flask, flash, request, render_template
+from flask import Flask, flash, request, redirect, render_template
+
 from PIL import Image
 from werkzeug.utils import secure_filename
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -43,8 +46,7 @@ def load_config():
         config = yaml.load(file, Loader=yaml.FullLoader)
     return config
 
-def process_image(imageName):
-        
+def process_image(imageName):    
     #Set Paths
     imagePath = config['settings']['path_uploads'] + imageName
     outputPath = config['settings']['path_processed']
@@ -73,6 +75,8 @@ def process_image(imageName):
             output = "Error: Position {0} is not valid".format(logoPosition)
 
         image.save(outputPath + imageName)
+        upload_to_azure(outputPath + imageName, imageName)
+        
         output = "Image {0} has been processed successfully".format(imagePath)
     except:
         output = "An exception occured"
@@ -82,4 +86,14 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config['settings']['allowed_extensions']
 
+def upload_to_azure(filepath, filename):
+    connect_str = config['azure']['storage_connection_string']
+    container_name = config['azure']['storage_container_name']
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+
+    with open(filepath, "rb") as data:
+        blob_client.upload_blob(data)
+        blob_client.set_blob_metadata(metadata={"Application":"Image Uploader"})
+    
 config = load_config()
