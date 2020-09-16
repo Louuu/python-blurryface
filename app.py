@@ -26,22 +26,26 @@ def show_config():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            flash("No file in request")
-            return redirect(request.url)
         
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(config['settings']['path_uploads'], filename))
-            flash('File uploaded successfully')
-            flash(process_image(filename))
-        else:
-            flash('File uploaded failed')
+        files = request.files.getlist("file")
+        for file in files:
+            
+            if 'file' not in request.files:
+                flash("No file in request")
+                return redirect(request.url)
+        
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(config['settings']['path_uploads'], filename))
+                flash('File uploaded successfully')
+                flash(process_image(filename))
+            else:
+                flash('File uploaded failed')
     return render_template("upload.html")
+
 
 def load_config():
     with open(r'config.yaml') as file:
@@ -119,7 +123,7 @@ def detect_faces(filepath, filename):
 
             cropped_face = img.crop((left, upper, right, lower))
             
-            blurred_face = cropped_face.filter(ImageFilter.BoxBlur(radius=50))
+            blurred_face = cropped_face.filter(ImageFilter.BoxBlur(radius=100))
             img.paste(blurred_face, ((left, upper, right, lower)))
             print("Faces blurred")
         img.save(filepath)
