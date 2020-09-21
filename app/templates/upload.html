@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% set active_page = "uploader" %}
+
+{% block header %}
+  <h1>{% block title %}Upload Files{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post" enctype=multipart/form-data>
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        <label for="file">{{ form.files.label }}</label>
+        {{ form.files(class_="form-control-file", multiple="") }}
+        {% for error in form.files.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+        <label for="event">{{ form.event.label }}</label>
+        {{ form.event(class_="form-control", placeholder="Event Name") }}
+      </div>
+      <div class="form-check">
+        {{ form.blur_faces(class_="form-check-input") }}
+        <label for="blur_faces">{{ form.blur_faces.label }}</label>
+      </div>
+      <p>{{ form.submit(class_="btn btn-primary") }}</p>
+  </form>
+
+{% endblock %}

@@ -1,5 +1,7 @@
 pillow
 flask
+flask-wtf
 pyyaml
 azure-storage-blob
 azure.cognitiveservices.vision.face
+celery
