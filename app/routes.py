@@ -4,7 +4,7 @@ from flask import render_template, flash, redirect, request, url_for
 from app import app
 from app.forms import UploadForm
 from werkzeug.utils import secure_filename
-from app.tasks import processImage
+from tasks import processImage
 
 @app.route('/')
 def index():
