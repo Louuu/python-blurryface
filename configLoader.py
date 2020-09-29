@@ -19,5 +19,5 @@ class Config(object):
     #CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND') or 'redis://localhost:6379'
     LOGO_POSITION = os.environ.get('LOGO_POSITION') or data['settings']['logo_position'] or "bottom_left"
     AZURE_FACES_API_ENDPOINT = os.environ.get('AZURE_FACES_API_ENDPOINT') or data['azure']['face_detection_endpoint'] or None
-    AZURE_FACES_API_KEY = os.environ.get('AZURE_FACES_API_ENDPOINT') or data['azure']['face_detection_key'] or None
+    AZURE_FACES_API_KEY = os.environ.get('AZURE_FACES_API_KEY') or data['azure']['face_detection_key'] or None
     
